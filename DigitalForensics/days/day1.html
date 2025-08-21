@@ -1,0 +1,117 @@
+<section id="day1">
+  <header class="header-banner">
+    <h1 id="types-of-storage-devices">
+    Overview of Storage Categories and Mediums
+  </h1>
+  </header>
+
+  <p>
+    In forensic investigations, storage devices fall into three main categories—primary, secondary,
+    and tertiary—based on how data persists and the role each plays. Beneath these categories are
+    distinct technologies (magnetic, flash, optical, cloud) that dictate choice of tools and processes.
+  </p>
+  <ul>
+    <li><strong>Primary Storage</strong>: Volatile memory like RAM and CPU cache. Holds running processes, encryption keys, and in-flight data that vanishes on power-off.</li>
+    <li><strong>Secondary Storage</strong>: Non-volatile devices such as HDDs, SSDs, USB sticks, and memory cards. Retain files, deleted remnants, and filesystem metadata.</li>
+    <li><strong>Tertiary Storage</strong>: Offline media like magnetic tapes and optical discs in jukeboxes. Used for long-term archives and backups.</li>
+    <li><strong>Virtual & Cloud Storage</strong>: VM disks (VMDK/VHD) and object stores (AWS S3, Azure Blob). Persist across data centers with versioning and replication metadata.</li>
+  </ul>
+</section>
+
+<section id="volatility">
+  <h2 id="volatile-vs-non-volatile-memory">
+    Volatile vs Non-Volatile Memory
+  </h2>
+  <p>
+    Understanding volatility is essential to capture data before it’s lost.
+  </p>
+  <ul>
+    <li><strong>Volatile Memory</strong>: DRAM (RAM) and CPU caches (L1/L2/L3) that lose contents when power is removed. Use live-capture tools like Belkasoft RAM Capturer or FTK Imager RAM.</li>
+    <li><strong>Non-Volatile Memory</strong>: Magnetic disks/tapes, NAND flash media, optical discs, and cloud object stores. Use bit-stream imaging, wear-leveling analysis, compression control, and API-driven exports.</li>
+  </ul>
+</section>
+
+<section id="objectives">
+  <h2 id="key-forensic-objectives-by-medium">
+    Key Forensic Objectives by Medium
+  </h2>
+  <ul>
+    <li><strong>Magnetic Media</strong>: Preserve exact bit copies; watch for host-protected areas and proprietary sector layouts.</li>
+    <li><strong>Flash Media</strong>: Account for TRIM operations and over-provisioned regions; capture entire NAND image when possible.</li>
+    <li><strong>Optical Media</strong>: Disable hardware compression and log every disc swap or library action.</li>
+    <li><strong>Cloud Object Stores</strong>: Script API pulls to capture data plus full metadata; reconcile eventual consistency and audit logs.</li>
+  </ul>
+</section>
+
+<section id="types">
+  <h2 id="storage-types-and-forensic-implications">
+    Storage Types and Forensic Implications
+  </h2>
+  <p>
+    Categories define <em>what</em> you’re dealing with; types define <em>how</em> you access it. Selecting 
+    the wrong approach risks evidence gaps or contamination.
+  </p>
+
+  <h3 id="direct-attached-storage-das">Direct Attached Storage (DAS)</h3>
+  <ul>
+    <li>Locally connected block devices (SATA, NVMe, USB).</li>
+
+          <li>Locally connected block devices (SATA, NVMe, USB).</li>
+          <li>Use hardware write-blockers and bit-stream tools (`dd`, FTK Imager, Guymager).</li>
+          <li>Beware BIOS/UEFI quirks that hide or remap NVMe partitions.</li>
+          <li>SSDs demand TRIM-aware capture and may require vendor SDKs for forensic-grade dumps.</li>
+        </ul>
+
+        <h3>Network Attached Storage (NAS)</h3>
+        <ul>
+          <li>File-level shares via NFS, SMB/CIFS, or AFP.</li>
+          <li>Leverage snapshots/exports to preserve ACLs, timestamps, and extended attributes.</li>
+          <li>If mounting risks writes, capture packets (`tcpdump`, Wireshark) and reconstruct transfers offline.</li>
+          <li>Document filesystem types (Btrfs, ZFS) and deduplication settings that affect deleted-data visibility.</li>
+        </ul>
+
+        <h3>Storage Area Network (SAN)</h3>
+        <ul>
+          <li>Block volumes over Fibre Channel or iSCSI.</li>
+          <li>Map LUNs and zoning with administrators before imaging.</li>
+          <li>Handle multipath carefully; use vendor utilities (EMC Navisphere, NetApp SnapManager).</li>
+          <li>SAN taps can intercept FC frames or iSCSI commands when direct admin access is limited.</li>
+        </ul>
+
+        <h3>Cloud Storage</h3>
+        <ul>
+          <li>RESTful APIs expose object and file stores.</li>
+          <li>Use SDKs/CLI (`aws s3api`, `az storage blob`) to download data plus metadata.</li>
+          <li>Track versioning, replication status, and correlate with audit logs.</li>
+        </ul>
+
+        <h3>Archival & Tape Libraries</h3>
+        <ul>
+          <li>Sequential media managed by robotic libraries or autoloaders.</li>
+          <li>Plan for extended seek times and multiple cartridge swaps.</li>
+          <li>Control compression settings; log each load/unload event for chain of custody.</li>
+        </ul>
+      </section>
+
+      <section id="distinction">
+        <h2>Categories vs Types: Why the Distinction Matters</h2>
+        <p>
+          <strong>Categories</strong> answer “What kind of persistence and role does this storage have?”  
+          <strong>Types</strong> answer “How is this storage exposed to me?”
+        </p>
+        <p>
+          A secondary storage device might present as DAS, NAS, SAN, or a cloud-mounted block. Confusing category with type can lead to wrong acquisition methods—mounting when you should image or scripting APIs against a live filesystem—and may invalidate evidence in court.
+        </p>
+      </section>
+
+      <section id="final">
+        <h2>Final Thoughts</h2>
+        <ul>
+          <li>Choose the right tools—from RAM grabbers to tape robotics or cloud SDKs.</li>
+          <li>Preserve both volatile execution artifacts and long-term archives.</li>
+          <li>Document a clear, defensible chain of custody and methodology.</li>
+        </ul>
+        <p>
+          Build exercises that walk the same dataset through DAS imaging, NAS exports, SAN LUN captures, and cloud API exports. This hands-on approach cements concepts and readies your workflow for any forensic scenario.
+        </p>
+      </section>
